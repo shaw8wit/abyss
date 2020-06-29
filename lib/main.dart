@@ -11,7 +11,11 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
 //      showPerformanceOverlay: true,
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(fontFamily: 'NunitoSans'),
+      theme: ThemeData(
+        fontFamily: 'NunitoSans',
+        primaryColor: Color(0xff21254A),
+        scaffoldBackgroundColor: Colors.black,
+      ),
       initialRoute: Auth.routeName,
       routes: {
         Auth.routeName: (context) => Auth(),

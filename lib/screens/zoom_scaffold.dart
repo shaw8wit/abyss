@@ -13,14 +13,13 @@ class ZoomScaffold extends StatefulWidget {
 }
 
 class _ZoomScaffoldState extends State<ZoomScaffold> with TickerProviderStateMixin {
-  Curve interval = new Interval(0.0, 1.0, curve: Curves.linear);
+  Curve interval = new Interval(0.0, 1.0, curve: Curves.easeIn);
 
   createContentDisplay() {
     return zoomAndSlideContent(
       new Container(
         child: new Scaffold(
           resizeToAvoidBottomInset: false,
-          backgroundColor: Colors.transparent,
           appBar: new AppBar(
             backgroundColor: Color(0xff21254A),
             elevation: 0.0,
@@ -52,29 +51,25 @@ class _ZoomScaffoldState extends State<ZoomScaffold> with TickerProviderStateMix
   }
 
   zoomAndSlideContent(Widget content) {
-    var slidePercent, scalePercent;
+    var percent;
 
     switch (Provider.of<MenuController>(context, listen: true).state) {
       case MenuState.closed:
-        slidePercent = 0.0;
-        scalePercent = 0.0;
+        percent = 0.0;
         break;
       case MenuState.open:
-        slidePercent = 1.0;
-        scalePercent = 1.0;
+        percent = 1.0;
         break;
       case MenuState.opening:
-        slidePercent = interval.transform(Provider.of<MenuController>(context, listen: true).percentOpen);
-        scalePercent = interval.transform(Provider.of<MenuController>(context, listen: true).percentOpen);
+        percent = interval.transform(Provider.of<MenuController>(context, listen: true).percentOpen);
         break;
       case MenuState.closing:
-        slidePercent = interval.transform(Provider.of<MenuController>(context, listen: true).percentOpen);
-        scalePercent = interval.transform(Provider.of<MenuController>(context, listen: true).percentOpen);
+        percent = interval.transform(Provider.of<MenuController>(context, listen: true).percentOpen);
         break;
     }
 
-    final slideAmount = 275.0 * slidePercent;
-    final contentScale = 1.0 - (0.24 * scalePercent);
+    final slideAmount = 275.0 * percent;
+    final contentScale = 1.0 - (0.24 * percent);
     final cornerRadius = 30.0 * Provider.of<MenuController>(context, listen: true).percentOpen;
 
     return new Transform(
@@ -152,7 +147,7 @@ class MenuController extends ChangeNotifier {
     this.vsync,
   }) : _animationController = new AnimationController(vsync: vsync) {
     _animationController
-      ..duration = const Duration(milliseconds: 220)
+      ..duration = const Duration(milliseconds: 200)
       ..addListener(() {
         notifyListeners();
       })
