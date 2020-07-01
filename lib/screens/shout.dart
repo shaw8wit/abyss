@@ -1,4 +1,6 @@
+import 'package:abyss/models/screamlist.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class Shout extends StatefulWidget {
   @override
@@ -7,12 +9,20 @@ class Shout extends StatefulWidget {
 
 class _ShoutState extends State<Shout> with SingleTickerProviderStateMixin {
   AnimationController controller;
+  TextEditingController txtController;
 
   @override
   void initState() {
+    txtController = TextEditingController();
     controller = AnimationController(duration: Duration(milliseconds: 1000), vsync: this);
     controller.forward(from: 0.0);
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    txtController.dispose();
+    super.dispose();
   }
 
   @override
@@ -32,6 +42,8 @@ class _ShoutState extends State<Shout> with SingleTickerProviderStateMixin {
           children: [
             Spacer(),
             TextField(
+              controller: txtController,
+              style: TextStyle(color: Colors.white),
               decoration: const InputDecoration(
                 border: InputBorder.none,
                 hintText: 'Enter your words..',
@@ -44,6 +56,8 @@ class _ShoutState extends State<Shout> with SingleTickerProviderStateMixin {
               onPressed: () {
                 Scaffold.of(context).showSnackBar(SnackBar(content: Text('Yay! A SnackBar!')));
                 controller.reverse(from: 1.0);
+                Provider.of<Screamlist>(context, listen: false).addScream(txtController.text);
+                txtController.text = "";
               },
               textColor: Colors.white,
               padding: const EdgeInsets.all(0.0),

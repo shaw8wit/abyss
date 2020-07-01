@@ -1,4 +1,6 @@
+import 'package:abyss/models/screamlist.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class Listen extends StatefulWidget {
   @override
@@ -7,9 +9,11 @@ class Listen extends StatefulWidget {
 
 class _ListenState extends State<Listen> with SingleTickerProviderStateMixin {
   AnimationController controller;
+  String text;
 
   @override
   void initState() {
+    text = Provider.of<Screamlist>(context, listen: false).getScream();
     controller = AnimationController(duration: Duration(milliseconds: 1000), vsync: this);
     controller.reverse(from: 1.0);
     super.initState();
@@ -32,7 +36,14 @@ class _ListenState extends State<Listen> with SingleTickerProviderStateMixin {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Spacer(),
-            Text("yo", style: TextStyle(color: Colors.white), textAlign: TextAlign.center),
+            Padding(
+              padding: const EdgeInsets.all(20.0),
+              child: Text(
+                "$text",
+                style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 22),
+                textAlign: TextAlign.center,
+              ),
+            ),
             Spacer(),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -40,8 +51,14 @@ class _ListenState extends State<Listen> with SingleTickerProviderStateMixin {
                 RaisedButton(
                   color: Colors.transparent,
                   onPressed: () {
-                    Scaffold.of(context).showSnackBar(SnackBar(content: Text('Yay! A SnackBar!')));
+                    Scaffold.of(context).showSnackBar(SnackBar(
+                      content: Text('Marked as Unrelatable'),
+                      duration: Duration(seconds: 1),
+                    ));
                     controller.forward(from: 0.0);
+                    setState(() {
+                      text = Provider.of<Screamlist>(context, listen: false).getScream();
+                    });
                   },
                   textColor: Colors.white,
                   padding: const EdgeInsets.all(0.0),
@@ -64,8 +81,15 @@ class _ListenState extends State<Listen> with SingleTickerProviderStateMixin {
                 RaisedButton(
                   color: Colors.transparent,
                   onPressed: () {
-                    Scaffold.of(context).showSnackBar(SnackBar(content: Text('Yay! A SnackBar!')));
+                    text = Provider.of<Screamlist>(context, listen: false).getScream();
+                    Scaffold.of(context).showSnackBar(SnackBar(
+                      content: Text('Marked as Relatable'),
+                      duration: Duration(seconds: 1),
+                    ));
                     controller.forward(from: 0.0);
+                    setState(() {
+                      text = Provider.of<Screamlist>(context, listen: false).getScream();
+                    });
                   },
                   textColor: Colors.white,
                   padding: const EdgeInsets.all(0.0),

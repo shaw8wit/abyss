@@ -1,9 +1,9 @@
 class Screams {
   String text;
-  int rel, unrel;
+  int plus, minus;
 
   Screams(this.text) {
-    rel = 0;
-    unrel = 0;
+    plus = 0;
+    minus = 0;
   }
 }
