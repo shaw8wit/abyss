@@ -13,7 +13,6 @@ class _ListenState extends State<Listen> with SingleTickerProviderStateMixin {
 
   @override
   void initState() {
-    text = Provider.of<Screamlist>(context, listen: false).getScream();
     controller = AnimationController(duration: Duration(milliseconds: 1000), vsync: this);
     controller.reverse(from: 1.0);
     super.initState();
@@ -56,9 +55,6 @@ class _ListenState extends State<Listen> with SingleTickerProviderStateMixin {
                       duration: Duration(seconds: 1),
                     ));
                     controller.forward(from: 0.0);
-                    setState(() {
-                      text = Provider.of<Screamlist>(context, listen: false).getScream();
-                    });
                   },
                   textColor: Colors.white,
                   padding: const EdgeInsets.all(0.0),
@@ -87,9 +83,7 @@ class _ListenState extends State<Listen> with SingleTickerProviderStateMixin {
                       duration: Duration(seconds: 1),
                     ));
                     controller.forward(from: 0.0);
-                    setState(() {
-                      text = Provider.of<Screamlist>(context, listen: false).getScream();
-                    });
+                    setState(() {});
                   },
                   textColor: Colors.white,
                   padding: const EdgeInsets.all(0.0),

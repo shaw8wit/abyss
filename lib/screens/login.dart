@@ -1,4 +1,6 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'drawer.dart';
 
@@ -28,6 +30,24 @@ class Login extends StatefulWidget {
 class _LoginState extends State<Login> {
   AuthMode _authMode = AuthMode.signup;
 
+  final _auth = FirebaseAuth.instance;
+  final _email = TextEditingController();
+  final _password = TextEditingController();
+  bool obscureText = true;
+
+  @override
+  void dispose() {
+    _email.dispose();
+    _password.dispose();
+    super.dispose();
+  }
+
+  _toggleView() {
+    setState(() {
+      obscureText = !obscureText;
+    });
+  }
+
   void _switchMode() {
     if (_authMode == AuthMode.login) {
       setState(() {
@@ -40,9 +60,25 @@ class _LoginState extends State<Login> {
     }
   }
 
+  _onAlertButtonPressed1(context, String s) {
+    AlertDialog alert = AlertDialog(
+      title: Text("Error", textAlign: TextAlign.center),
+      content: Text(s, textAlign: TextAlign.center),
+      actions: [FlatButton(child: Text("OK"), onPressed: () => Navigator.of(context).pop())],
+    );
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return alert;
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final deviceSize = MediaQuery.of(context).size;
+//    TextEditingController email;
+
     return Stack(
       overflow: Overflow.clip,
       children: <Widget>[
@@ -99,7 +135,7 @@ class _LoginState extends State<Login> {
                 children: [
                   TextField(
                     style: TextStyle(color: Colors.white, fontSize: 18),
-//                    autofocus: true,
+                    controller: _email,
                     textAlign: TextAlign.center,
                     cursorColor: Colors.white,
                     decoration: InputDecoration(
@@ -109,16 +145,30 @@ class _LoginState extends State<Login> {
                       labelStyle: TextStyle(color: Colors.white),
                     ),
                   ),
-                  TextField(
-                    style: TextStyle(color: Colors.white, fontSize: 18),
-                    textAlign: TextAlign.center,
-                    cursorColor: Colors.white,
-                    decoration: InputDecoration(
-                      hintText: 'Enter password',
-                      hintStyle: TextStyle(color: Colors.grey),
-                      labelText: 'Password:',
-                      labelStyle: TextStyle(color: Colors.white),
-                    ),
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      Expanded(
+                        child: TextField(
+                          controller: _password,
+                          obscureText: obscureText,
+                          style: TextStyle(color: Colors.white, fontSize: 18),
+                          textAlign: TextAlign.center,
+                          cursorColor: Colors.white,
+                          decoration: InputDecoration(
+                            hintText: 'Enter password',
+                            hintStyle: TextStyle(color: Colors.grey),
+                            labelText: 'Password:',
+                            labelStyle: TextStyle(color: Colors.white),
+                          ),
+                        ),
+                      ),
+                      IconButton(
+                        splashRadius: 20,
+                        icon: Icon(obscureText ? Icons.visibility : Icons.visibility_off),
+                        onPressed: _toggleView,
+                      )
+                    ],
                   ),
                   SizedBox(height: 30),
                   OutlineButton(
@@ -130,8 +180,28 @@ class _LoginState extends State<Login> {
                           style: TextStyle(fontSize: 18)),
                     ),
                     borderSide: BorderSide(color: Colors.indigoAccent[100], style: BorderStyle.solid, width: 3),
-                    onPressed: () {
-                      Navigator.of(context).popAndPushNamed(SideMenu.routeName, arguments: 1);
+                    onPressed: () async {
+                      try {
+                        final newUser = (_authMode == AuthMode.login)
+                            ? await _auth.signInWithEmailAndPassword(
+                                email: _email.text,
+                                password: _password.text,
+                              )
+                            : await _auth.createUserWithEmailAndPassword(
+                                email: _email.text,
+                                password: _password.text,
+                              );
+                        if (newUser != null) {
+                          final prefs = await SharedPreferences.getInstance();
+                          final FirebaseUser user = await _auth.currentUser();
+                          prefs.setString('email', user.email);
+                          Navigator.of(context).popAndPushNamed(SideMenu.routeName, arguments: 1);
+                        }
+                      } catch (e) {
+                        print(e.toString());
+                        _onAlertButtonPressed1(context, e.message);
+//                        AlertDialog(title: Text("Something went wrong!"), content: Text("${e.message}."));
+                      }
                     },
                   ),
                   SizedBox(height: 10),

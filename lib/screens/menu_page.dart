@@ -1,10 +1,13 @@
 import 'package:abyss/screens/settings.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'drawer.dart';
 import 'login.dart';
 
 class MenuScreen extends StatelessWidget {
+  final _auth = FirebaseAuth.instance;
   final int val;
   static const List<MenuItem> options = [
     MenuItem(Icons.account_circle, 'Profile', 1),
@@ -13,7 +16,7 @@ class MenuScreen extends StatelessWidget {
     MenuItem(Icons.account_balance_wallet, 'Premium', 4),
     MenuItem(Icons.info_outline, 'About', 5),
   ];
-  const MenuScreen(this.val);
+  MenuScreen(this.val);
 
   @override
   Widget build(BuildContext context) {
@@ -71,7 +74,10 @@ class MenuScreen extends StatelessWidget {
               title: Text('Settings', style: TextStyle(fontSize: 14, color: Colors.white)),
             ),
             ListTile(
-              onTap: () {
+              onTap: () async {
+                final prefs = await SharedPreferences.getInstance();
+                _auth.signOut();
+                prefs.clear();
                 Navigator.of(context).popAndPushNamed(Auth.routeName);
               },
               leading: Icon(

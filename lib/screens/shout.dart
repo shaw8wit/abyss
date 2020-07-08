@@ -1,6 +1,13 @@
-import 'package:abyss/models/screamlist.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+final _firestore = Firestore.instance;
+
+FirebaseUser loggedUser;
+
+final _auth = FirebaseAuth.instance;
 
 class Shout extends StatefulWidget {
   @override
@@ -11,8 +18,13 @@ class _ShoutState extends State<Shout> with SingleTickerProviderStateMixin {
   AnimationController controller;
   TextEditingController txtController;
 
+  void getUser() async {
+    loggedUser = await _auth.currentUser();
+  }
+
   @override
   void initState() {
+    getUser();
     txtController = TextEditingController();
     controller = AnimationController(duration: Duration(milliseconds: 1000), vsync: this);
     controller.forward(from: 0.0);
@@ -53,11 +65,18 @@ class _ShoutState extends State<Shout> with SingleTickerProviderStateMixin {
             Spacer(),
             RaisedButton(
               color: Colors.transparent,
-              onPressed: () {
-                Scaffold.of(context).showSnackBar(SnackBar(content: Text('Yay! A SnackBar!')));
+              onPressed: () async {
+                final prefs = await SharedPreferences.getInstance();
+                _firestore.collection('screams').add({
+                  'text': txtController.text,
+                  'reacted': ["${prefs.getString('email')}"],
+                  'author': loggedUser.email,
+                  'plus': 1,
+                  'minus': 0
+                });
+                Scaffold.of(context).showSnackBar(SnackBar(content: Text('The void engulfed your voice!')));
                 controller.reverse(from: 1.0);
-                Provider.of<Screamlist>(context, listen: false).addScream(txtController.text);
-                txtController.text = "";
+                txtController.clear();
               },
               textColor: Colors.white,
               padding: const EdgeInsets.all(0.0),
